@@ -1,3 +1,7 @@
-<div>Hello Im a blade template.</div>
+<div>
+    Hello Im a blade template.
+</div>
 
-<div>Hello, {{ $name }}!</div>
+@isset($name)
+    <div>The name is: {{ $name }}!</div>
+@endisset
