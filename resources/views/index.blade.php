@@ -3,9 +3,11 @@
 </h1>
 
 <div>
-    @if (count($tasks))
-        <div>There are tasks!</div>
-    @else
+    {{-- @if (count($tasks)) --}}
+    @forelse ($tasks as $task)
+        <div>{{ $task->title }}</div>
+    @empty
         <div>There are no tasks!</div>
-    @endif
+    @endforelse
+    {{-- @endif --}}
 </div>
