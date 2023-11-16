@@ -93,29 +93,41 @@ $tasks = [
 | to pass the task data to the Blade view.
 |
 */
+
 Route::get('/', function () use($tasks) {
     return view('index', [
         'tasks' => $tasks
     ]);
-});
+})->name('tasks.index');
 
-Route::get('/xxx', function () {
-    return 'Hello';
-})->name('hello');
+/*
+|--------------------------------------------------------------------------
+| Route definition for displaying a single task
+|--------------------------------------------------------------------------
+|
+| Defines a route with a parameterized URL pattern '/{id}' that points to
+| a callback function. The callback function returns the string 'One
+| single task'. The 'name' method is used to give the route a name
+| 'task.show', which can be referenced elsewhere in the application.
+|
+*/
 
-Route::get('/hallo', function () {
-    return redirect()->route('hello');
-});
+Route::get('/{id}', function ($id) {
+  return 'One single task';
+})->name('tasks.show');
 
-Route::get('/greet/{name}', function ($name) {
-    return 'Hello ' . $name . '!';
-});
+// Route::get('/xxx', function () {
+//     return 'Hello';
+// })->name('hello');
+
+// Route::get('/hallo', function () {
+//     return redirect()->route('hello');
+// });
+
+// Route::get('/greet/{name}', function ($name) {
+//     return 'Hello ' . $name . '!';
+// });
 
 Route::fallback(function () {
     return 'Still got somewhere!';
 });
-
-// GET
-// POST
-// PUT
-// DELETE
