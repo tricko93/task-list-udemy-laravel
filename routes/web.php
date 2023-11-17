@@ -88,13 +88,27 @@ $tasks = [
 |--------------------------------------------------------------------------
 |
 | Defines the route '/' with callback function that returns the 'index'
-| view and passes an array containing the 'tasks' variable obtained from
-| the $tasks array passed as a parameter to the closure. This enables us
-| to pass the task data to the Blade view.
+| view.
 |
 */
 
-Route::get('/', function () use($tasks) {
+Route::get('/', function () {
+    return redirect()->route('tasks.index');
+});
+
+/*
+|--------------------------------------------------------------------------
+| Route definition for the tasks page
+|--------------------------------------------------------------------------
+|
+| Defines the route '/tasks' with callback function that returns the
+| 'index' view and passes an array containing the 'tasks' variable obtained
+| from the $tasks array passed as a parameter to the closure. This enables
+| us to pass the task data to the Blade view.
+|
+*/
+
+Route::get('/tasks', function () use($tasks) {
     return view('index', [
         'tasks' => $tasks
     ]);
@@ -105,14 +119,14 @@ Route::get('/', function () use($tasks) {
 | Route definition for displaying a single task
 |--------------------------------------------------------------------------
 |
-| Defines a route with a parameterized URL pattern '/{id}' that points to
-| a callback function. The callback function returns the string 'One
-| single task'. The 'name' method is used to give the route a name
+| Defines a route with a parameterized URL pattern '/tasks/{id}' that
+| points to a callback function. The callback function returns the string
+| 'One single task'. The 'name' method is used to give the route a name
 | 'task.show', which can be referenced elsewhere in the application.
 |
 */
 
-Route::get('/{id}', function ($id) {
+Route::get('/tasks/{id}', function ($id) {
   return 'One single task';
 })->name('tasks.show');
 
