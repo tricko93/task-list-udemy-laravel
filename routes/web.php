@@ -2,6 +2,8 @@
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Response;
+use Illuminate\Http\Request;
+use App\Models\Task;
 
 /*
 |--------------------------------------------------------------------------
@@ -82,9 +84,24 @@ Route::get('/', function () {
 
 Route::get('/tasks', function () {
     return view('index', [
-        'tasks' => \App\Models\Task::latest()->get()
+        'tasks' => Task::latest()->get()
     ]);
 })->name('tasks.index');
+
+/*
+|--------------------------------------------------------------------------
+| Route definition for the create task page
+|--------------------------------------------------------------------------
+|
+| Defines the route '/tasks/create' with the view method and the 'create'
+| parameter. This returns the 'create' view, which displays the form for
+| creating a new task. This route is named 'tasks.create' for convenience
+| and consistency.
+|
+*/
+
+Route::view('/tasks/create', 'create')
+    ->name('tasks.create');
 
 /*
 |--------------------------------------------------------------------------
@@ -92,18 +109,49 @@ Route::get('/tasks', function () {
 |--------------------------------------------------------------------------
 |
 | This route defines a URL pattern '/tasks/{id}' that maps to a callback
-| function. The callback function retrieves a specific task from the database
-| using the provided 'id' parameter. If the task is not found, it returns a
-| 404 page. Otherwise, it returns the 'show' view and passes the retrieved
-| task as a variable.
+| function. The callback function retrieves a specific task from the
+| database using the provided 'id' parameter. If the task is not found,
+| it returns a 404 page. Otherwise, it returns the 'show' view and passes
+| the retrieved task as a variable.
 |
 */
 
 Route::get('/tasks/{id}', function ($id) {
     return view('show', [
-        'task' => \App\Models\Task::findOrFail($id)
+        'task' => Task::findOrFail($id)
     ]);
 })->name('tasks.show');
+
+
+/*
+|--------------------------------------------------------------------------
+| Route definition for creating a new task and storing it in the database
+|--------------------------------------------------------------------------
+|
+| Defines the route '/tasks' with the POST method and a callback function
+| that validates the request data, creates a new task using the Task model,
+| and redirects to the 'tasks.show' route with the 'id' parameter.
+| This enables us to store a new task in the database and display it on the
+| web page.
+|
+*/
+
+Route::post('/tasks', function (Request $request) {
+    $data = $request->validate([
+        'title' => 'required|max:255',
+        'description' => 'required',
+        'long_description' => 'required'
+    ]);
+
+    $task = new Task;
+    $task->title = $data['title'];
+    $task->description = $data['description'];
+    $task->long_description = $data['long_description'];
+
+    $task->save();
+
+    return redirect()->route('tasks.show', ['id' => $task->id]);
+})->name('tasks.store');
 
 /*
 |--------------------------------------------------------------------------
