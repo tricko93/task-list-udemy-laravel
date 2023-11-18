@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Http\Response;
 
 /*
 |--------------------------------------------------------------------------
@@ -87,7 +88,7 @@ $tasks = [
 | Route definition for the home page
 |--------------------------------------------------------------------------
 |
-| Defines the route '/' with callback function that returns the 'index'
+| Defines the route '/' with a callback function that returns the 'index'
 | view.
 |
 */
@@ -101,7 +102,7 @@ Route::get('/', function () {
 | Route definition for the tasks page
 |--------------------------------------------------------------------------
 |
-| Defines the route '/tasks' with callback function that returns the
+| Defines the route '/tasks' with a callback function that returns the
 | 'index' view and passes an array containing the 'tasks' variable obtained
 | from the $tasks array passed as a parameter to the closure. This enables
 | us to pass the task data to the Blade view.
@@ -114,20 +115,28 @@ Route::get('/tasks', function () use($tasks) {
     ]);
 })->name('tasks.index');
 
+
 /*
 |--------------------------------------------------------------------------
 | Route definition for displaying a single task
 |--------------------------------------------------------------------------
 |
 | Defines a route with a parameterized URL pattern '/tasks/{id}' that
-| points to a callback function. The callback function returns the string
-| 'One single task'. The 'name' method is used to give the route a name
-| 'task.show', which can be referenced elsewhere in the application.
+| points to a callback function. The callback function now retrieves a
+| single task from the $tasks array based on the provided 'id'. If the task
+| is not found, it throws a 'Not Found' exception, otherwise, it returns the
+| 'show' view and passes the retrieved task as a variable to the view.
 |
 */
 
-Route::get('/tasks/{id}', function ($id) {
-  return 'One single task';
+Route::get('/tasks/{id}', function ($id) use ($tasks) {
+    $task = collect($tasks)->firstWhere('id', $id);
+
+    if (!$task) {
+        abort(Response::HTTP_NOT_FOUND);
+    }
+
+    return view('show', ['task' => $task]);
 })->name('tasks.show');
 
 // Route::get('/xxx', function () {
