@@ -105,6 +105,25 @@ Route::view('/tasks/create', 'create')
 
 /*
 |--------------------------------------------------------------------------
+| Route definition for the edit task page
+|--------------------------------------------------------------------------
+|
+| Defines the route '/tasks/{id}/edit' with the view method and the 'id'
+| parameter. This returns the 'edit' view, which displays the form for
+| editing an existing task. The task is found by its id using the
+| 'findOrFail' method and passed to the view as data. This route is named
+| 'tasks.edit' for convenience and consistency.
+|
+*/
+
+Route::get('/tasks/{id}/edit', function ($id) {
+    return view('edit', [
+        'task' => Task::findOrFail($id)
+    ]);
+})->name('tasks.edit');
+
+/*
+|--------------------------------------------------------------------------
 | Route definition for showing a specific task
 |--------------------------------------------------------------------------
 |
@@ -153,6 +172,43 @@ Route::post('/tasks', function (Request $request) {
     return redirect()->route('tasks.show', ['id' => $task->id])
         ->with('success', 'Task create successfully!');
 })->name('tasks.store');
+
+
+/*
+|--------------------------------------------------------------------------
+| Route definition for updating a task and storing it in the database
+|--------------------------------------------------------------------------
+|
+| This route defines the logic for updating an existing task by its id.
+| It uses the PUT method and accepts two parameters: the task id and the
+| request object. It validates the request data using the 'validate' method
+| and assigns it to the 'data' variable.
+| It finds the task by its id using the 'findOrFail' method and assigns it
+| to the 'task' variable. It updates the task attributes with the data
+| values using the assignment operator.
+| It saves the changes to the database using the 'save' method. It redirects
+| the user to the 'tasks.show' route with the updated task id and a success
+| message.
+|
+*/
+
+Route::put('/tasks/{id}', function ($id, Request $request) {
+    $data = $request->validate([
+        'title' => 'required|max:255',
+        'description' => 'required',
+        'long_description' => 'required'
+    ]);
+
+    $task = Task::findOrFail($id);
+    $task->title = $data['title'];
+    $task->description = $data['description'];
+    $task->long_description = $data['long_description'];
+
+    $task->save();
+
+    return redirect()->route('tasks.show', ['id' => $task->id])
+        ->with('success', 'Task updated successfully!');
+})->name('tasks.update');
 
 /*
 |--------------------------------------------------------------------------
