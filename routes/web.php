@@ -15,73 +15,44 @@ use Illuminate\Http\Response;
 */
 
 /*
- |--------------------------------------------------------------------------
- | Code Explanation
- |--------------------------------------------------------------------------
- |
- | There is a "Task" class - which defines the class for the task list app.
- |
- | Additionally, we have created an object called "$tasks" that contains an
- | array of task objects. This serves as a temporary simulation of working
- | with a database model until we integrate a real database into the project.
- |
- | So we would like to pass this data to Blade Views so we can learn something
- | about Blade without having to introduce database concepts.
- |
- */
-
-class Task
-{
-  public function __construct(
-    public int $id,
-    public string $title,
-    public string $description,
-    public ?string $long_description,
-    public bool $completed,
-    public string $created_at,
-    public string $updated_at
-  ) {
-  }
-}
-
-$tasks = [
-  new Task(
-    1,
-    'Buy groceries',
-    'Task 1 description',
-    'Task 1 long description',
-    false,
-    '2023-03-01 12:00:00',
-    '2023-03-01 12:00:00'
-  ),
-  new Task(
-    2,
-    'Sell old stuff',
-    'Task 2 description',
-    null,
-    false,
-    '2023-03-02 12:00:00',
-    '2023-03-02 12:00:00'
-  ),
-  new Task(
-    3,
-    'Learn programming',
-    'Task 3 description',
-    'Task 3 long description',
-    true,
-    '2023-03-03 12:00:00',
-    '2023-03-03 12:00:00'
-  ),
-  new Task(
-    4,
-    'Take dogs for a walk',
-    'Task 4 description',
-    null,
-    false,
-    '2023-03-04 12:00:00',
-    '2023-03-04 12:00:00'
-  ),
-];
+|--------------------------------------------------------------------------
+| Code Explanation
+|--------------------------------------------------------------------------
+|
+| The web.php file contains the routes that define the URLs and their
+| corresponding callback functions or closures. These routes determine how
+| the application responds to incoming requests.
+|
+| Previously, there was a "Task" class defined in the application, which
+| served as the model for the task list app. However, it has been removed,
+| and now the tasks are loaded from a MySQL database using the Task model.
+| This model interacts with the database to provide the task-related
+| functionality.
+|
+| The routes have been updated accordingly. The 'tasks.index' route now
+| retrieves the tasks from the database using the `latest()->get()` method
+| and passes them to the 'index' view.
+|
+| Similarly, the 'tasks.show' route fetches a specific task from the
+| database using the `findOrFail($id)` method and passes it to the 'show'
+| view.
+|
+| The routes establish relationships between URLs and views, connecting the
+| requested URLs with the appropriate Blade views. By returning a view from
+| a route, dynamic HTML can be rendered using the Blade templating engine,
+| where we can access and display the task data.
+|
+| The main purpose of the code in web.php is to define the routes that
+| determine how the application handles certain URLs, retrieves the required
+| task data from the MySQL database using the Task model, performs any
+| necessary logic, and returns the appropriate views or responses to the
+| user.
+|
+| As the application evolves and introduces more features, these routes
+| may be expanded or modified to accommodate new functionality or interact
+| with additional models and database tables.
+|
+*/
 
 /*
 |--------------------------------------------------------------------------
@@ -104,52 +75,87 @@ Route::get('/', function () {
 |
 | Defines the route '/tasks' with a callback function that returns the
 | 'index' view and passes an array containing the 'tasks' variable obtained
-| from the $tasks array passed as a parameter to the closure. This enables
-| us to pass the task data to the Blade view.
+| from the Task model. This enables us to load the task data from the MySQL
+| database and pass it to the Blade view.
 |
 */
 
-Route::get('/tasks', function () use($tasks) {
+Route::get('/tasks', function () {
     return view('index', [
-        'tasks' => $tasks
+        'tasks' => \App\Models\Task::latest()->get()
     ]);
 })->name('tasks.index');
 
-
 /*
 |--------------------------------------------------------------------------
-| Route definition for displaying a single task
+| Route definition for showing a specific task
 |--------------------------------------------------------------------------
 |
-| Defines a route with a parameterized URL pattern '/tasks/{id}' that
-| points to a callback function. The callback function now retrieves a
-| single task from the $tasks array based on the provided 'id'. If the task
-| is not found, it throws a 'Not Found' exception, otherwise, it returns the
-| 'show' view and passes the retrieved task as a variable to the view.
+| This route defines a URL pattern '/tasks/{id}' that maps to a callback
+| function. The callback function retrieves a specific task from the database
+| using the provided 'id' parameter. If the task is not found, it returns a
+| 404 page. Otherwise, it returns the 'show' view and passes the retrieved
+| task as a variable.
 |
 */
 
-Route::get('/tasks/{id}', function ($id) use ($tasks) {
-    $task = collect($tasks)->firstWhere('id', $id);
-
-    if (!$task) {
-        abort(Response::HTTP_NOT_FOUND);
-    }
-
-    return view('show', ['task' => $task]);
+Route::get('/tasks/{id}', function ($id) {
+    return view('show', [
+        'task' => \App\Models\Task::findOrFail($id)
+    ]);
 })->name('tasks.show');
+
+/*
+|--------------------------------------------------------------------------
+| Route definition for displaying a simple greeting
+|--------------------------------------------------------------------------
+|
+| This route responds to the '/xxx' URL and returns a simple greeting text.
+|
+*/
 
 // Route::get('/xxx', function () {
 //     return 'Hello';
 // })->name('hello');
 
+/*
+|--------------------------------------------------------------------------
+| Route definition for redirecting to the 'hello' route
+|--------------------------------------------------------------------------
+|
+| This route responds to the '/hallo' URL and redirects to the 'hello' route,
+| which is defined above.
+|
+*/
+
 // Route::get('/hallo', function () {
 //     return redirect()->route('hello');
 // });
 
+/*
+|--------------------------------------------------------------------------
+| Route definition for greeting a specific name
+|--------------------------------------------------------------------------
+|
+| This route responds to the '/greet/{name}' URL pattern and returns a 
+| personalized greeting using the provided 'name' parameter.
+|
+*/
+
 // Route::get('/greet/{name}', function ($name) {
 //     return 'Hello ' . $name . '!';
 // });
+
+/*
+|--------------------------------------------------------------------------
+| Fallback route definition
+|--------------------------------------------------------------------------
+|
+| This route is a fallback for any routes that are not defined in the
+| application. It will be triggered when no other routes match the
+| requested URL. It returns a generic "Still got somewhere!" message.
+|
+*/
 
 Route::fallback(function () {
     return 'Still got somewhere!';
