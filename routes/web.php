@@ -208,6 +208,26 @@ Route::delete('/tasks/{task}', function (Task $task) {
 
 /*
 |--------------------------------------------------------------------------
+| Route definition for toggling task completeness
+|--------------------------------------------------------------------------
+|
+| Defines the route '/tasks/{task}/toggle-complete' with the PUT method.
+| The route invokes a callback function that accepts a Task object as a
+| parameter. Inside the callback, the 'toggleComplete' method is called on
+| the Task object to toggle its completeness. After updating the task, the
+| user is redirected back and a success message is flashed indicating the
+| successful update. 
+|
+*/
+
+Route::put('tasks/{task}/toggle-complete', function(Task $task) {
+    $task->toggleComplete();
+
+    return redirect()->back()->with('success', 'Task updated successfully!');
+})->name('tasks.toggle-complete');
+
+/*
+|--------------------------------------------------------------------------
 | Route definition for displaying a simple greeting
 |--------------------------------------------------------------------------
 |
