@@ -1,9 +1,9 @@
 {{--
 	This layout file serves as the base template for all other views. It
-	defines the basic HTML structure of the application, including the `<head>`
-	section and the `<body>` section. The title of the page is rendered using
-	the `@yield('title')` directive, and the actual content of each view is
-	injected into the `@yield('content')` section. It provides a consistent
+	defines the basic HTML structure of the application, including the '<head>'
+	section and the '<body>' section. The title of the page is rendered using
+	the '@yield('title')' directive, and the actual content of each view is
+	injected into the '@yield('content')' section. It provides a consistent
 	structure and allows individual views to define their title and content
 	sections.
 --}}
@@ -12,11 +12,12 @@
 <html>
 	<head>
 		<title>Laravel 10 Task List App</title>
+		<script src="https://cdn.tailwindcss.com"></script>
 		@yield('styles')
 	</head>
 
-	<body>
-		<h1>@yield('title')</h1>
+	<body class="container mx-auto mt-10 mb-10 max-w-lg">
+		<h1 class="mb-4 text-2xl">@yield('title')</h1>
 		<div>
 			@if (session()->has('success'))
 				<div>{{ session('success') }}</div>
