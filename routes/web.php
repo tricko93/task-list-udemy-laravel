@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Response;
 use Illuminate\Http\Request;
 use App\Models\Task;
+use App\Http\Requests\TaskRequest;
 
 /*
 |--------------------------------------------------------------------------
@@ -108,17 +109,17 @@ Route::view('/tasks/create', 'create')
 | Route definition for the edit task page
 |--------------------------------------------------------------------------
 |
-| Defines the route '/tasks/{id}/edit' with the view method and the 'id'
-| parameter. This returns the 'edit' view, which displays the form for
-| editing an existing task. The task is found by its id using the
+| Defines the route '/tasks/{task}/edit' with the view method and the
+| 'task' parameter. This returns the 'edit' view, which displays the form
+| for editing an existing task. The task is found by its id using the
 | 'findOrFail' method and passed to the view as data. This route is named
 | 'tasks.edit' for convenience and consistency.
 |
 */
 
-Route::get('/tasks/{id}/edit', function ($id) {
+Route::get('/tasks/{task}/edit', function (Task $task) {
     return view('edit', [
-        'task' => Task::findOrFail($id)
+        'task' => $task
     ]);
 })->name('tasks.edit');
 
@@ -127,17 +128,17 @@ Route::get('/tasks/{id}/edit', function ($id) {
 | Route definition for showing a specific task
 |--------------------------------------------------------------------------
 |
-| This route defines a URL pattern '/tasks/{id}' that maps to a callback
+| This route defines a URL pattern '/tasks/{task}' that maps to a callback
 | function. The callback function retrieves a specific task from the
-| database using the provided 'id' parameter. If the task is not found,
+| database using the provided 'task' parameter. If the task is not found,
 | it returns a 404 page. Otherwise, it returns the 'show' view and passes
 | the retrieved task as a variable.
 |
 */
 
-Route::get('/tasks/{id}', function ($id) {
+Route::get('/tasks/{task}', function (Task $task) {
     return view('show', [
-        'task' => Task::findOrFail($id)
+        'task' => $task
     ]);
 })->name('tasks.show');
 
@@ -148,28 +149,18 @@ Route::get('/tasks/{id}', function ($id) {
 |--------------------------------------------------------------------------
 |
 | Defines the route '/tasks' with the POST method and a callback function
-| that validates the request data, creates a new task using the Task model,
-| and redirects to the 'tasks.show' route with the 'id' parameter.
-| This enables us to store a new task in the database and display it on the
-| web page.
+| that uses a custom TaskRequest form request class to validate the request
+| data. It creates a new task using the Task::create method with the
+| validated data, and redirects to the 'tasks.show' route with the task id
+| parameter. This enables us to store a new task in the database and display
+| it on the web page.
 |
 */
 
-Route::post('/tasks', function (Request $request) {
-    $data = $request->validate([
-        'title' => 'required|max:255',
-        'description' => 'required',
-        'long_description' => 'required'
-    ]);
+Route::post('/tasks', function (TaskRequest $request) {
+    $task = Task::create($request->validated());
 
-    $task = new Task;
-    $task->title = $data['title'];
-    $task->description = $data['description'];
-    $task->long_description = $data['long_description'];
-
-    $task->save();
-
-    return redirect()->route('tasks.show', ['id' => $task->id])
+    return redirect()->route('tasks.show', ['task' => $task->id])
         ->with('success', 'Task create successfully!');
 })->name('tasks.store');
 
@@ -180,33 +171,18 @@ Route::post('/tasks', function (Request $request) {
 |--------------------------------------------------------------------------
 |
 | This route defines the logic for updating an existing task by its id.
-| It uses the PUT method and accepts two parameters: the task id and the
-| request object. It validates the request data using the 'validate' method
-| and assigns it to the 'data' variable.
-| It finds the task by its id using the 'findOrFail' method and assigns it
-| to the 'task' variable. It updates the task attributes with the data
-| values using the assignment operator.
-| It saves the changes to the database using the 'save' method. It redirects
-| the user to the 'tasks.show' route with the updated task id and a success
-| message.
+| It uses the PUT method and accepts two parameters: the task object and
+| the TaskRequest form request class.
+| It updates the task attributes with the validated data using the 'update'
+| method. It then redirects the user to the 'tasks.show' route with the
+| updated task id and a success message.
 |
 */
 
-Route::put('/tasks/{id}', function ($id, Request $request) {
-    $data = $request->validate([
-        'title' => 'required|max:255',
-        'description' => 'required',
-        'long_description' => 'required'
-    ]);
+Route::put('/tasks/{task}', function (Task $task, TaskRequest $request) {
+    $task->update($request->validated());
 
-    $task = Task::findOrFail($id);
-    $task->title = $data['title'];
-    $task->description = $data['description'];
-    $task->long_description = $data['long_description'];
-
-    $task->save();
-
-    return redirect()->route('tasks.show', ['id' => $task->id])
+    return redirect()->route('tasks.show', ['task' => $task->id])
         ->with('success', 'Task updated successfully!');
 })->name('tasks.update');
 
