@@ -188,6 +188,26 @@ Route::put('/tasks/{task}', function (Task $task, TaskRequest $request) {
 
 /*
 |--------------------------------------------------------------------------
+| Route definition for deleting a task from the database
+|--------------------------------------------------------------------------
+|
+| Defines the route '/tasks/{task}' with the DELETE method and a callback
+| function that accepts a Task object as a parameter. It deletes the given
+| task using the 'delete' method.
+| It then redirects the user to the 'tasks.index' route and includes a
+| success message indicating the successful deletion of the task.
+|
+*/
+
+Route::delete('/tasks/{task}', function (Task $task) {
+    $task->delete();
+
+    return redirect()->route('tasks.index')
+        ->with('success', 'Task deleted successfully!');
+})->name('tasks.destroy');
+
+/*
+|--------------------------------------------------------------------------
 | Route definition for displaying a simple greeting
 |--------------------------------------------------------------------------
 |
