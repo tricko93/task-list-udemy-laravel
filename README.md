@@ -83,7 +83,7 @@ You can change the configuration variables by editing the .env file in the root 
 	code .env
 
 	# Change the database name to
-	DB_DATABASE=laravel-task-list
+	DB_DATABASE=laravel-10-task-list
 
 	# Change the database password to
 	DB_PASSWORD=root
